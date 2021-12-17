@@ -1,0 +1,70 @@
+﻿@page "/students"
+@page "/students/list"
+@using Rihal.Application.Dtos;
+@inject IStudentService _studentService
+
+<div class="row">
+    <div class="col-lg-9">
+        <h1>students</h1>
+    </div>
+    <div class="col-lg-3 text-right">
+        <a class="btn btn-success btn-sm" href="/students/create" role="button">Create New</a>
+    </div>
+</div>
+
+@if (students != null && students.Count > 0)
+{
+    <table class="table table-bordered table-striped table-sm">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Country Name</th>
+                <th>Class Name</th>
+                <th>Birth Date</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in students)
+            {
+                <tr>
+                    <td>@item.Name</td>
+                    <td>@item.CountryName</td>
+                    <td>@item.ClassName</td>
+                    <td>@item.BirthDate</td>
+                    <td class="text-right">
+                        <a class="btn btn-secondary btn-sm" href="/students/edit/@item.Id" role="button">Edit</a>
+                        <button class="btn btn-danger btn-sm" @onclick="@(e => Delete(item.Id))" role="button">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    @if (results.Count > 0)
+    {
+        foreach (var item in results)
+        {
+            <MudAlert Severity="Severity.Error" CloseIcon="x">@item.ErrorMessage</MudAlert>
+        }
+    }
+
+}
+
+@code {
+    List<StudentViewModel> students = new List<StudentViewModel>();
+    List<ValidationResult> results = new List<ValidationResult>();
+    protected override async Task OnInitializedAsync()
+    {
+        students = await _studentService.GetAll();
+    }
+
+    public async Task Delete(Guid id)
+    {
+
+        var results = await _studentService.Delete(id);
+        if (results.Count == 0)
+        {
+            students = await _studentService.GetAll();
+        }
+    }
+}

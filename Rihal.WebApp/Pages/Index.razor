@@ -1,0 +1,56 @@
+﻿@page "/"
+
+@using Rihal.Application.Interfaces;
+@using Rihal.Application.Dtos;
+@inject IStudentService _studentService
+
+<h1>Statistics</h1>
+
+@*Welcome to your new app.
+
+    <SurveyPrompt Title="How is Blazor working for you?" />*@
+@if (studentsPerClassLst.Count > 0)
+{
+    <MudText Typo="Typo.h6">Count of students per class</MudText>
+    <MudPaper Class="pa-4">
+        <MudChart ChartType="ChartType.Pie" InputData="@studentsPerClassLst.Select(x =>(double) x.Count).ToArray()" @bind-SelectedIndex="@index"
+                  InputLabels="@studentsPerClassLst.Select(x =>x.ClassName).ToArray()" Width="300px" Height="300px" />
+    </MudPaper>
+
+}
+
+@if (studentsPerCountryLst.Count > 0)
+{
+<MudText Typo="Typo.h6">Count of students per country</MudText>
+    <MudPaper Class="pa-4">
+        <MudChart ChartType="ChartType.Pie" InputData="@studentsPerCountryLst.Select(x =>(double) x.Count).ToArray()" @bind-SelectedIndex="@index"
+                  InputLabels="@studentsPerCountryLst.Select(x =>x.CountryName).ToArray()" Width="300px" Height="300px" />
+    </MudPaper>
+
+}
+
+@if (studentsAveregePerCountryLst.Count > 0)
+{
+<MudText Typo="Typo.h6">Average age of students per country</MudText>
+    <MudPaper Class="pa-4">
+        <MudChart ChartType="ChartType.Pie" InputData="@studentsAveregePerCountryLst.Select(x =>(double) x.Averege).ToArray()" @bind-SelectedIndex="@index"
+                  InputLabels="@studentsAveregePerCountryLst.Select(x =>x.CountryName).ToArray()" Width="300px" Height="300px" />
+    </MudPaper>
+
+}
+
+
+@code {
+    int index = -1;
+    List<StudentPerClassViewModel> studentsPerClassLst = new List<StudentPerClassViewModel>();
+    List<StudentPerCountryViewModel> studentsPerCountryLst = new List<StudentPerCountryViewModel>();
+    List<AveregePerCountryViewModel> studentsAveregePerCountryLst = new List<AveregePerCountryViewModel>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        studentsPerClassLst = await _studentService.GetPerClass();
+        var data = studentsPerClassLst.Select(x => x.Count).ToList();
+        studentsPerCountryLst = await _studentService.GetPerCountry();
+        studentsAveregePerCountryLst = await _studentService.GetAveregePerCountry();
+    }
+}

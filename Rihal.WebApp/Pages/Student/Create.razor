@@ -1,0 +1,81 @@
+﻿@page "/students/create"
+@using Rihal.Application.Dtos;
+@inject IStudentService _studentService
+@inject NavigationManager _navigationManager
+
+<div class="row">
+    <div class="col-lg-9">
+        <h1>Create</h1>
+    </div>
+    <div class="col-lg-3 text-right">
+        <a class="btn btn-secondary btn-sm" href="/students" role="button">Go Back To List</a>
+    </div>
+</div>
+
+@if (student != null)
+{
+<EditForm Model="@student" OnValidSubmit="@SubmitStudent">
+    <div class="form-group">
+        <label><span style="color:red">*</span>Name</label>
+        <InputText class="form-control" @bind-Value="student.Name" />
+    </div>
+    <div class="form-group">
+        <label><span style="color:red">*</span>Country</label>
+        <InputSelect @bind-Value="student.CountryId" class="form-control">
+            @if (countries != null)
+                {
+                @foreach (var item in countries)
+                    {
+                    <option value="@item.Id">@item.CountryName</option>
+                    }
+                }
+        </InputSelect>
+    </div>
+    <div class="form-group">
+        <label><span style="color:red">*</span>Class</label>
+        <InputSelect @bind-Value="student.ClassId" class="form-control">
+            @if (classes != null)
+                {
+                @foreach (var item in classes)
+                    {
+                    <option value="@item.Id">@item.ClassName</option>
+                    }
+                }
+        </InputSelect>
+    </div>
+    <div class="form-group">
+        <label><span style="color:red">*</span>BirthDate</label>
+        <InputDate type="date" format-value="yyyy-MM-dd" class="form-control" @bind-Value="student.BirthDate" />
+    </div>
+    <button type="submit" class="btn btn-primary">Create</button>
+</EditForm>
+    @if (results.Count > 0)
+    {
+        foreach (var item in results)
+        {
+            <MudAlert Severity="Severity.Error" >@item.ErrorMessage</MudAlert>
+        }
+    }
+}
+
+@code {
+
+    CreateStudentDto student = new CreateStudentDto();
+    List<CountryViewModel> countries = new List<CountryViewModel>();
+    List<ClassViewModel> classes = new List<ClassViewModel>();
+    List<ValidationResult> results = new List<ValidationResult>();
+    protected override async Task OnInitializedAsync()
+    {
+        countries = await _studentService.GetCountries();
+        classes = await _studentService.GetClasses();
+    }
+
+    private async void SubmitStudent()
+    {
+        results = await _studentService.Create(student);
+        if (results.Count == 0)
+        {
+            _navigationManager.NavigateTo("/students");
+        }
+    }
+}
